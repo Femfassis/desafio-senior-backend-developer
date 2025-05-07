@@ -1,0 +1,9 @@
+"fastapi[standard]"
+"passlib[bcrypt]"
+sqlalchemy
+psycopg2-binary
+alembic
+python-decouple
+python-jose
+httpx
+pytest
