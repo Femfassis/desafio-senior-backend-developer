@@ -5,7 +5,7 @@ import pytest
 from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
-from jose import jwt, JWTError
+from jose import jwt
 from datetime import datetime, timezone
 
 mock_session = MagicMock()

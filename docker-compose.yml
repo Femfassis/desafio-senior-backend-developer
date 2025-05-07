@@ -5,3 +5,26 @@ services:
       - 5432:5432
     env_file:
       - ./.env
+    networks:
+      - main_network
+    hostname: database.me
+    
+
+  api:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env
+    networks:
+      - main_network
+    depends_on:
+      - postgresql
+
+
+    
+networks:
+  main_network:
+    name: main_network
+    driver: bridge

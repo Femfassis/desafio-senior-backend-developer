@@ -1,4 +1,5 @@
 fastapi[standard]
+uvicorn
 passlib[bcrypt]
 sqlalchemy
 psycopg2-binary

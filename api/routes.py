@@ -7,6 +7,7 @@ from .cases.auth import AuthUseCases
 from .cases.user import UserUseCases
 from .schemas import User, Document
 from math import floor
+from pydantic import ValidationError
 
 ###############Auth paths#####################
 auth_router = APIRouter(prefix='/auth')
@@ -20,10 +21,13 @@ def user_register(user: User, db_session: Session = Depends(get_db_session)):
 @auth_router.post('/login')
 def user_login(request_form_user: OAuth2PasswordRequestForm = Depends(), db_session: Session = Depends(get_db_session)):
     case = AuthUseCases(db_session=db_session)
-    user = User(
-        email=request_form_user.username,
-        password=request_form_user.password
-    )
+    try: 
+        user = User(
+            email=request_form_user.username,
+            password=request_form_user.password
+        )
+    except ValidationError:
+        return JSONResponse(content={'detail' : "Email inválido"}, status_code=status.HTTP_400_BAD_REQUEST)
     auth_data = case.user_login(user=user)
     return JSONResponse(
         content=auth_data,
