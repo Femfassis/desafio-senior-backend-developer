@@ -12,3 +12,8 @@ class User(BaseModel):
         return value
     
 
+class Document(BaseModel):
+    number: str
+    name: str
+
+

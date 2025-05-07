@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from api.db.models import UserModel
+from api.db.models import UserModel, TransportModel
 from api.schemas import User
 from passlib.context import CryptContext
 from fastapi.exceptions import HTTPException
@@ -16,15 +16,17 @@ crypt_context = CryptContext(schemes=['sha256_crypt'])
 
 
 
-class UserUseCases:
+class AuthUseCases:
     def __init__(self, db_session: Session):
         self.db_session = db_session
 
 
     def user_register(self, user: User):
-        user_model = UserModel(email=user.email, password=crypt_context.hash(user.password))
+        user = UserModel(email=user.email, password=crypt_context.hash(user.password))  
+        transport = TransportModel(user=user)     
         try:
-            self.db_session.add(user_model)
+            self.db_session.add(user)
+            self.db_session.add(transport)
             self.db_session.commit()
         except IntegrityError:
             raise HTTPException(
@@ -62,3 +64,4 @@ class UserUseCases:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Invalid access token'
             )
+        return user_on_db

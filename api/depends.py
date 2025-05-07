@@ -1,6 +1,6 @@
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends
-from .auth import UserUseCases
+from .cases.auth import AuthUseCases
 from .db.connection import session
 from sqlalchemy.orm import Session
 
@@ -14,8 +14,8 @@ def get_db_session():
         new_session.close()
 
 def token_verifier(db_session: Session = Depends(get_db_session), token = Depends(oauth_scheme)):
-    case = UserUseCases(db_session=db_session)
-    case.verify_token(access_token=token)
-
+    case = AuthUseCases(db_session=db_session)
+    user = case.verify_token(access_token=token)
+    return user
 
     
