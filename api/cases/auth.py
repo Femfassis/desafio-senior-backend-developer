@@ -70,26 +70,37 @@ class AuthUseCases:
             )
         return user_on_db
     
-    def user_login_part_one(self, user: User):
+    def user_login_part_one(self, user: User, special_token_duration: int = 24):
         user_on_db = self.db_session.query(UserModel).filter_by(email=user.email).first()
         if (user_on_db is None) or (not crypt_context.verify(user.password, user_on_db.password)):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
         
-        special_token = randint(0,999999)
+        special_token_1 = str(randint(0,999999))
+        special_token_2 = (datetime.now(timezone.utc) + timedelta(hours=special_token_duration)).strftime("%d/%m/%Y, %H:%M")
+
+        special_token = f'{special_token_1}|{special_token_2}'
+
         user_on_db.special_token = special_token
+
         self.db_session.commit()
 
         send_token()
 
-        return {'email' : user_on_db.email, 'special_token' : special_token}
+        return {'email' : user_on_db.email, 'special_token' : special_token_1}
         
 
     def user_login_part_two(self, email: str, special_token: str, expires_in:int = 30):
+
         user_on_db = self.db_session.query(UserModel).filter_by(email=email).first()
         if (user_on_db is None):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
         
-        if user_on_db.special_token != special_token:
+        special_token_1, special_token_2 = user_on_db.special_token.split('|')
+
+        if  datetime.now(timezone.utc) > datetime.strptime(special_token_2,"%d/%m/%Y, %H:%M").replace(tzinfo=timezone.utc):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid special token')
+        
+        if special_token_1 != special_token:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid special token')
         
         expire_date = datetime.now(timezone.utc) + timedelta(minutes=expires_in)
