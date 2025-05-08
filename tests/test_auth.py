@@ -6,7 +6,7 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
 from jose import jwt
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 mock_session = MagicMock()
 crypt_context = CryptContext(schemes=['sha256_crypt'])
@@ -61,7 +61,7 @@ def test_user_login_bad_password():
 def test_verify_token_OK():
     payload = {
             'sub' : "test@test.test",
-            'exp' : datetime.now(timezone.utc)
+            'exp' : datetime.now(timezone.utc)+timedelta(minutes=30)
         }
     
     mock_user = User(email = "test@test.test" , password = crypt_context.hash("123"))
@@ -83,7 +83,7 @@ def test_verify_token_invalid_JWT():
 def test_verify_token_no_user():
     payload = {
             'sub' : "test@test.test",
-            'exp' : datetime.now(timezone.utc)
+            'exp' : datetime.now(timezone.utc)+timedelta(minutes=30)
         }
     
     mock_session.query().filter_by().first.return_value = None
@@ -93,3 +93,15 @@ def test_verify_token_no_user():
     with pytest.raises(HTTPException):
         case.verify_token(access_token)
 
+@patch('api.cases.auth.SECRET_KEY', '3')
+def test_verify_token_expired():
+    payload = {
+            'sub' : "test@test.test",
+            'exp' : datetime.now(timezone.utc)-timedelta(minutes=30)
+        }
+    
+
+    access_token = jwt.encode(payload, '3', algorithm='HS256')
+    case = AuthUseCases(mock_session)
+    with pytest.raises(HTTPException):
+        case.verify_token(access_token)

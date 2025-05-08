@@ -8,8 +8,10 @@ class UserModel(Base):
     id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True) #Escolhido como chave primária pois o email pode resultar em problemas de performance, além da possibilidade de troca de email no futuro
     email = Column('email', String, nullable=False, unique=True)
     password = Column('password', String, nullable=False)
+    special_token = Column('special_token', String)
     transport = relationship('TransportModel', back_populates='user', uselist=False)
     documents = relationship('DocumentModel')
+    
 
 class TransportModel(Base):
     __tablename__ = 'transport'

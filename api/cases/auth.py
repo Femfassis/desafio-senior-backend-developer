@@ -8,12 +8,16 @@ from fastapi import status
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from decouple import config
+from random import randint
 
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = 'HS256'
 crypt_context = CryptContext(schemes=['sha256_crypt'])
 
+
+def send_token():
+    pass
 
 
 class AuthUseCases:
@@ -65,3 +69,35 @@ class AuthUseCases:
                 detail='Invalid access token'
             )
         return user_on_db
+    
+    def user_login_part_one(self, user: User):
+        user_on_db = self.db_session.query(UserModel).filter_by(email=user.email).first()
+        if (user_on_db is None) or (not crypt_context.verify(user.password, user_on_db.password)):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+        
+        special_token = randint(0,999999)
+        user_on_db.special_token = special_token
+        self.db_session.commit()
+
+        send_token()
+
+        return {'email' : user_on_db.email, 'special_token' : special_token}
+        
+
+    def user_login_part_two(self, email: str, special_token: str, expires_in:int = 30):
+        user_on_db = self.db_session.query(UserModel).filter_by(email=email).first()
+        if (user_on_db is None):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
+        
+        if user_on_db.special_token != special_token:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid special token')
+        
+        expire_date = datetime.now(timezone.utc) + timedelta(minutes=expires_in)
+        payload = {
+            'sub' : email,
+            'exp' : expire_date
+        }
+
+        access_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+        return {'access_token' : access_token, 'expire_date': expire_date.isoformat()}

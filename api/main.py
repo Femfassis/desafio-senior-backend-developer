@@ -2,10 +2,13 @@ from fastapi import FastAPI, status
 from .routes import auth_router, user_router
 from fastapi.responses import JSONResponse
 
-api = FastAPI()
+api = FastAPI(title="Desafio Senior Backend Developer")
 
-@api.get("/health")
-def root():
+@api.get("/health", tags=['Public'])
+def get_health():
+    """
+    Checa se a API está online.
+    """
     return JSONResponse(
         content= {'status':'online'},
         status_code=status.HTTP_200_OK
