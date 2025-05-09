@@ -1,64 +1,56 @@
 # Desafio Técnico – Desenvolvedor(a) Back-end Sênior
 
-Bem-vindo(a) ao desafio técnico para a vaga de Pessoa Desenvolvedora Back-end Sênior!
+Bem-vindo(a) a implantação do Desafio Técnico - Desenvolvedor(a) Back-end Sênior.
 
-Nosso objetivo com este desafio é avaliar suas habilidades técnicas em FastAPI, bancos de dados, arquitetura de APIs e boas práticas de desenvolvimento back-end.
+Nesse README, você encontrará detalhes de como rodar o código, testá-lo, além de detalhes de funcionamento e implantação
 
-## 📌 Contexto
+## Como rodar
 
-A Prefeitura do Rio de Janeiro quer oferecer aos cidadãos uma **API de Carteira Digital**, onde os usuários poderão armazenar e gerenciar documentos digitais, consultar e carregar créditos do transporte público e acessar serviços municipais via chatbot.
+Primeiro, tenha o **docker compose** instalado. Para garantir que tudo funcione conforme no meu ambiente, é ideal que se tenha a versão **v2.35.1**
 
-Seu desafio será desenvolver uma API para essa carteira digital, simulando as interações do usuário com documentos e transporte público.
+Com isso, use o seguinte comando para levantar os containers (privilégios podem ser necessários para rodar comandos docker):
 
-## ✨ Requisitos do Desafio
+```console
+docker compose up --build
+```
 
-### 🔹 Funcionalidades Esperadas
+E pronto, o serviço já está rodando na porta **8000**. Para acessá-lo, basta entrar em localhost:8000, seguido de um dos caminhos. O mais útil para teste e documentação. é o [/docs](http://localhost:8000/docs)
 
-- Autenticação e Gerenciamento de Usuários
-    - Cadastro e login de usuários (simples, com e-mail/senha).
-    - Uso de tokens JWT para autenticação.
-    - [Diferencial] Integração com OAuth2 (Google, Facebook, etc).
-    - [Diferencial] Multi-factor authentication (MFA).
+## Como usar
 
-- Gestão de Documentos
-    - Endpoint para armazenar e listar documentos digitais (exemplo: identidade, CPF, comprovante de vacinação).
+O endpoint [/docs](http://localhost:8000/docs) é uma documentação utilizando OpenAPI, que mostra os endpoints agrupados em categorias, juntamente com descrições e maneiras de usá-los sem a necessidade de ferramenteas externas como Postman.
 
-- Gestão de Transporte Público
-    - Endpoint para consultar saldo do passe de transporte público (mockado).
-    - Endpoint para simular recarga do passe.
+As funcionalidades esstão suficientemente documentadas no próprio endpoint descrito acima, mas aqui vai uma breve descrição por completude:
 
-- Integração com Chatbot (Simples)
-    - Endpoint que recebe uma pergunta do usuário e retorna uma resposta pré-definida (simulação de um chatbot).
+- A categoria **Public** agrupa os endpoints que podem ser acessados por qualquer um e que não tem ligação com autenticação. Nela, só existe o endpoint de saúde, que verifica se o serviço está online.
 
-### 🔹 Requisitos Técnicos
+- A categoria **Auth** agrupa os endpoints de autenticação. Nela, é possível registrar um usuário e fazer login. Note que existe o login normal e um login para a implementação de autenticação em dois fatores. Seu funcionamento será melhor discutida na parte de decisões deste documento
 
-- FastAPI como framework principal.
-- Banco de Dados Relacional (PostgreSQL ou MySQL, usando ORM como SQLAlchemy ou Tortoise-ORM).
-- Ferramenta de migrations (Alembic, Aerich, etc).
-- Testes automatizados para pelo menos uma funcionalidade crítica.
-- Documentação da API (usando OpenAPI gerado pelo FastAPI e README explicativo).
-- Endpoint de verificação de saúde da API (por exemplo, `/health`).
-- Configuração de CI/CD (um workflow simples no GitHub Actions ou equivalente para rodar os testes automaticamente).
-- Dockerfile e/ou docker-compose para rodar o projeto facilmente.
+- A categoria **User** apresenta os endpoints que somente um usuário autenticado pode utilizar. Nela, temos funções como conversar com o chatbot, operar sobre o saldo do passe de transporte e sobre os documentos do usuário
 
-## 🏗️ Como Submeter o Desafio
+Para acessar esta última categoria, pode-se clicar no cadeado presente na documentação, colocando um email e uma senha já registradas pelo endpoint de registro. Note que para utilizar os endpoints de dois fatores, é necessário o uso de uma ferramenta externa como Postman. Mais detalhes na parte de decisões.
 
-1. Faça um fork ou clone este repositório.
-2. Implemente a solução seguindo os requisitos descritos.
-3. Inclua um pequeno documento (ou atualize este README) explicando suas decisões técnicas, estrutura do código e instruções para rodar o projeto.
-4. Envie o link do repositório para nós!
 
-## 📖 O que será avaliado?
+## Como testar executar testes automatizados
 
-- Código limpo e bem estruturado.
-- Boas práticas com FastAPI e Python.
-- Modelagem eficiente do banco de dados.
-- Testes automatizados.
-- Configuração de CI/CD e Docker.
-- Documentação clara da API e do projeto.
+Os testes são executados automaticamente por meio de **Github Actions** toda vez que há um **push** ou um **pull_request** no repositório do Github. As especificações deste workflow se encontram no arquivo [test-workflow.yml](.github/workflows/test-workflow.yml). 
 
-## ❓ Dúvidas?
+Se precisar rodar os testes "manualmente", use o **docker compose** normalmente para subir os containers e use o seguinte comando para ver os containers rodando:
 
-Se tiver qualquer dúvida, fique à vontade para perguntar!
+```console
+docker ps
+```
 
-Boa sorte! 🚀
+Com isso, ache o id do container que usa a imagem **desafio-senior-backend-developer-api**. Após isso, com seu id, rode
+
+```console
+docker exec -it SEU_ID bash
+```
+
+para "entrar" no container. Agora simplesmente pode-se usar:
+
+```console
+pytest
+```
+
+e pronto! Os testes são executados!
