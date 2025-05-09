@@ -1,2 +1,3 @@
 list_ignore
 venv/
+api/migrations/
