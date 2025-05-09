@@ -75,7 +75,7 @@ class AuthUseCases:
         if (user_on_db is None) or (not crypt_context.verify(user.password, user_on_db.password)):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
         
-        special_token_1 = str(randint(0,999999))
+        special_token_1 = str(randint(100000,999999))
         special_token_2 = (datetime.now(timezone.utc) + timedelta(hours=special_token_duration)).strftime("%d/%m/%Y, %H:%M")
 
         special_token = f'{special_token_1}|{special_token_2}'
