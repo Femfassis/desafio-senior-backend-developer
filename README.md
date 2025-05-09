@@ -72,7 +72,7 @@ Existem 3 modelos: **User**, **Transport** e **Document**
 
 As variáveis de ambiente, que são de caráter sensível, são armazenadas na [.env](.env). Nos scripts python, são lidas por meio da python-decouple.
 
-Note que normalmente este arquivo não estaria presente aqui junto ao resto no repositório, pois é uma variável local de conteúdo sensível, como a chave privada. Porém, é necessária para mostrar o funcionamento do projeto. Numa situação real, este arquivo estaria no [.gitignore](.gitignore)
+Note que normalmente este arquivo não estaria presente aqui junto ao resto no repositório, pois é uma variável local de conteúdo sensível, como a chave privada. Porém, é necessária para mostrar o funcionamento do projeto. Numa situação real, este arquivo estaria no [.gitignore](.gitignore).
 
 ### Arquivo de inicialização
 
@@ -88,7 +88,7 @@ As funcionalidades principais foram separadas em casos de uso, para assim libera
 
 A classe presente no arquivo [auth.py](api/cases/auth.py) é responsável pelos casos de uso de registro e log in, utilizando métodos criptográficos para hash de senhas com sal e sua verificação. Além disso, é aqui que os tokens de acesso são validádos.
 
-Além disso, essa classe também é responsável pela validação em duas etapas, porém os comentários sobre ela estão em outra seção.
+Além disso, essa classe também é responsável pela validação em duas etapas, porém os comentários sobre ela estão em outra [seção](#mfa).
 
 Já em [user.py](api/cases/user.py) estão os casos de uso para o usuário já autenticado. Nesta classe, são trabalhados os documentos do usuário. As outras funcionalidades que dependem do usuário estar autenticado são tratadas diretamente nos código para os endpoints em si, como será visto a seguir. Isso ocorre pois as funcionalidades são bem simples.
 
