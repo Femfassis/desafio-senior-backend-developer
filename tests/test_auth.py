@@ -19,6 +19,7 @@ mock_user.special_token = f'123456|{(datetime.now(timezone.utc) + timedelta(hour
 
 ######User Register#############
 def test_user_register_OK():
+
     case = AuthUseCases(mock_session)
     user = User(email = "test@test.test" , password =  "123")
     case.user_register(user)
@@ -28,9 +29,11 @@ def test_user_register_OK():
 
 
 def test_user_register_existing_email():
+
     mock_session.commit.side_effect = IntegrityError('', '', '')
     case = AuthUseCases(mock_session)
     user = User(email = "test@test.test"  , password =  "123")
+
     with pytest.raises(HTTPException, match='400: Email already in use'):
         case.user_register(user)
     mock_session.reset_mock(side_effect=True) #Reseta o side_effetct
@@ -40,6 +43,7 @@ def test_user_register_existing_email():
 ######User Login#############
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_user_login_OK():
+
     mock_session.query().filter_by().first.return_value = mock_user
     case = AuthUseCases(mock_session)
     user = User(email = "test@test.test" , password =  "123")
@@ -50,17 +54,21 @@ def test_user_login_OK():
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_user_login_bad_password():
+
     mock_session.query().filter_by().first.return_value = mock_user
     case = AuthUseCases(mock_session)
     user = User(email = "test@test.test" , password =  "1234")
+
     with pytest.raises(HTTPException, match='401: Invalid email or password'):
         case.user_login(user)
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_user_login_bad_user():
+
     mock_session.query().filter_by().first.return_value = None
     case = AuthUseCases(mock_session)
     user = User(email = "test@test.test" , password =  "123")
+
     with pytest.raises(HTTPException, match='401: Invalid email or password'):
         case.user_login(user)
 
@@ -70,6 +78,7 @@ def test_user_login_bad_user():
 ######Verify Token#############
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_verify_token_OK():
+
     payload = {
             'sub' : "test@test.test",
             'exp' : datetime.now(timezone.utc)+timedelta(minutes=30)
@@ -85,12 +94,15 @@ def test_verify_token_OK():
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_verify_token_invalid_JWT():
+    
     case = AuthUseCases(mock_session)
+
     with pytest.raises(HTTPException, match='401: Invalid access token'):
         case.verify_token('test')
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_verify_token_no_user():
+
     payload = {
             'sub' : "test@test.test",
             'exp' : datetime.now(timezone.utc)+timedelta(minutes=30)
@@ -105,6 +117,7 @@ def test_verify_token_no_user():
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_verify_token_expired():
+
     payload = {
             'sub' : "test@test.test",
             'exp' : datetime.now(timezone.utc)-timedelta(minutes=30)
@@ -113,6 +126,7 @@ def test_verify_token_expired():
 
     access_token = jwt.encode(payload, '3', algorithm='HS256')
     case = AuthUseCases(mock_session)
+    
     with pytest.raises(HTTPException, match='401: Invalid access token'):
         case.verify_token(access_token)
 
@@ -163,25 +177,30 @@ def test_user_part_two_login_OK():
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_user_login_part_two__bad_special_token_number():
+
     mock_user.special_token = f'123456|{(datetime.now(timezone.utc) + timedelta(hours=24)).strftime("%d/%m/%Y, %H:%M")}'
     mock_session.query().filter_by().first.return_value = mock_user
     case = AuthUseCases(mock_session)
-    print(mock_user.special_token)
+
     with pytest.raises(HTTPException, match='401: Invalid special token'):
         case.user_login_part_two(email=mock_user.email, special_token='000000')
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_user_login_part_two__bad_special_token_time():
+
     mock_user.special_token = f'123456|{(datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%d/%m/%Y, %H:%M")}'
     mock_session.query().filter_by().first.return_value = mock_user
     case = AuthUseCases(mock_session)
+
     with pytest.raises(HTTPException, match='401: Invalid special token'):
         case.user_login_part_two(email=mock_user.email, special_token='123456')
     mock_user.special_token = f'123456|{(datetime.now(timezone.utc) + timedelta(hours=24)).strftime("%d/%m/%Y, %H:%M")}' #Reseta ao valor original
 
 @patch('api.cases.auth.SECRET_KEY', '3')
 def test_user_login_part_two__bad_user():
+
     mock_session.query().filter_by().first.return_value = None
     case = AuthUseCases(mock_session)
+
     with pytest.raises(HTTPException, match='401: Invalid email'):
         case.user_login_part_two(email=mock_user.email, special_token='123456')
