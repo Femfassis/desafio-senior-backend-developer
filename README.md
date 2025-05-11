@@ -14,13 +14,13 @@ Com isso, use o seguinte comando para levantar os containers (privilégios podem
 docker compose up --build
 ```
 
-E pronto, o serviço já está rodando na porta **8000**. Para acessá-lo, basta entrar em localhost:8000, seguido de um dos caminhos. O mais útil para teste e documentação. é o [/docs](http://localhost:8000/docs)
+E pronto, o serviço já está rodando na porta **8000**. Para acessá-lo, basta entrar em localhost:8000, seguido de um dos caminhos. O mais útil para teste e documentação é o [/docs](http://localhost:8000/docs)
 
 ## Como usar
 
 O endpoint [/docs](http://localhost:8000/docs) é uma documentação utilizando OpenAPI, que mostra os endpoints agrupados em categorias, juntamente com descrições e maneiras de usá-los sem a necessidade de ferramentas externas como Postman.
 
-As funcionalidades esstão suficientemente documentadas no próprio endpoint descrito acima, mas aqui vai uma breve descrição por completude:
+As funcionalidades estão suficientemente documentadas no próprio endpoint descrito acima, mas aqui vai uma breve descrição por completude:
 
 - A categoria **Public** agrupa os endpoints que podem ser acessados por qualquer um e que não tem ligação com autenticação. Nela, só existe o endpoint de saúde, que verifica se o serviço está online.
 
@@ -66,7 +66,7 @@ Existem 3 modelos: **User**, **Transport** e **Document**
 
 - **Transport** é o modelo ligado ao saldo do passe de transporte do usuário. Em teoria, poderia ser apenas um atributo do modelo do usuário, mas foi escolhido criar uma entidade própria para facilitar sua expansão e evitar um acoplamento desnecessário com o usuário. A relação entre os dois é de 1 para 1. O saldo foi escolhido como do tipo float para simplicidade de apresentação aos avaliadores do projeto, mas em um ambiente real, seria interessante usar um número inteiro (o valor em centavos). Isso porque aritimética de ponto flutuante pode resultar em imprecisões. Estas imprecisões foram corrigidas em tempo de execução, como será visto em outra seção.
 
-- **Document** é o modelo ligado aos diversos documentos que o usuário pode ter. O documento é bascimente representado por seu número, tendo também um nome (sendo esse o nome do Documento e não do usuário. Por exemplo, nome pode ser "CPF", "RG", etc). Note que os requisitos não apresentam muito detalhes sobre a natureza dos documentos, por isso a simplicidade na implementação. Para um caso real, com mais requisitos, esta classe pode ser estendida por meio de heranças, para os mais diversos tipos de documentos, com validações para cada tipo. A relação com o usuário é de muitos para 1, ou seja, um usuário pode ter vários documentos, mas cada documento tem apenas um usuário.
+- **Document** é o modelo ligado aos diversos documentos que o usuário pode ter. O documento é basicamente representado por seu número, tendo também um nome (sendo esse o nome do Documento e não do usuário. Por exemplo, nome pode ser "CPF", "RG", etc). Note que os requisitos não apresentam muito detalhes sobre a natureza dos documentos, por isso a simplicidade na implementação. Para um caso real, com mais requisitos, esta classe pode ser estendida por meio de heranças, para os mais diversos tipos de documentos, com validações para cada tipo. A relação com o usuário é de muitos para 1, ou seja, um usuário pode ter vários documentos, mas cada documento tem apenas um usuário.
 
 ### Variáveis de ambiente
 
@@ -104,7 +104,7 @@ Nas rotas de login, as funções basicamente trabalham com as funções de caso 
 
 Nas rotas de usuário, temos as rotas de documento e as demais. As de documento usam os casos de uso do usuário como dito anteriormente. As demais, são simples o suficiente para terem sua lógica implementada diretamente.
 
-Um detalhe especial para o caso de recarga, que tem uma pequena correção de valores em ponto flutuante. Por exemplo, em Python, 0.4+0.2=0.6000000000000001. Por isso, certa lógica tem que ser implementada para os números somarem corretamente e se manterem com duas casas decimais. Como dito anteriormente, isso poderia ser evitado mais facilmente se o saldo fosse guardado como um número inteiro, isto é, em centavos.
+Um detalhe especial para o caso de recarga, que tem uma pequena correção de valores em ponto flutuante. Por exemplo, em Python, 0.4+0.2=0.6000000000000001. Por isso, certa lógica tem que ser implementada para os números somarem corretamente e se permanecerem com duas casas decimais. Como dito anteriormente, isso poderia ser evitado mais facilmente se o saldo fosse guardado como um número inteiro, isto é, em centavos.
 
 
 ### Testes
